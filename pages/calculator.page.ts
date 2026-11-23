@@ -28,6 +28,13 @@ export class CalculatorPage {
         });
     }
 
+    get employmentStartDateQuestion() {
+        return this.page.getByRole('heading', {
+            name: 'What was the employment start date?',
+            exact: true
+        });
+    }
+
     get workingPatternQuestion() {
         return this.page.getByRole('heading', {
             name: 'Is the holiday entitlement based on:',
@@ -49,9 +56,46 @@ export class CalculatorPage {
         })
     }
 
+    get whenDoesLeaveYearStartQuestion() {
+        return this.page.getByRole('heading', {
+            name: 'When does the leave year start?',
+            exact: true
+        })
+    }
+
+    get errorProblem() {
+        return this.page.getByRole('heading', {
+            name: 'There is a problem',
+            exact: true
+        })
+    }
+
+    get errorPleaseAnswerThisQuestionText() {
+        return this.page.locator('.govuk-error-message')
+            .filter({ hasText: 'Please answer this question' });
+    }
+
+    get errorPleaseAnswerThisQuestionLink() {
+        return this.page.getByRole('link', {
+            name: 'Please answer this question',
+            exact: true
+        })
+    }
+
+
+    get hoursWokedQuestion() {
+        return this.page.getByLabel('How many hours has the employee worked in the pay period?');
+    }
+
     get statutoryHolidayEntitlementAnswer() {
         return this.page.getByText(
             /The statutory holiday entitlement is/i
+        );
+    }
+
+    get statutoryHolidayPayPeriodAnswer() {
+        return this.page.getByText(
+            /The statutory entitlement for this pay period is/i
         );
     }
 
@@ -150,6 +194,18 @@ export class CalculatorPage {
         return this.page.getByLabel('Number of days worked per week?');
     }
 
+    get dayInput() {
+        return this.page.getByLabel('Day');
+    }
+
+    get monthInput() {
+        return this.page.getByLabel('Month');
+    }
+
+    get yearInput() {
+        return this.page.getByLabel('Year');
+    }
+
     async submitYes(): Promise<void> {
         await this.yesButton.check();
         await this.continueButton.click();
@@ -175,12 +231,32 @@ export class CalculatorPage {
         await this.continueButton.click();
     }
 
+    async enterHoursWorked(hours: number): Promise<void> {
+        await this.hoursWokedQuestion.fill(hours.toString());
+        await this.continueButton.click();
+    }
+
     async calculateFullYearEntitlement(days: number): Promise<void> {
         await this.startNowLink.click();
         await this.submitNo();
         await this.submitDaysPerWeek();
         await this.submitFullYearHoliday();
         await this.enterDaysWorked(days);
+    }
+
+    async calculatePartYearEntitlement(): Promise<void> {
+        await this.startNowLink.click();
+        await this.submitNo();
+        await this.submitDaysPerWeek();
+        await this.startPartWayYearHolidayButton.check();
+        await this.continueButton.click();
+    }
+
+    async enterDate(day: string, month: string, year: string): Promise<void> {
+        await this.dayInput.fill(day);
+        await this.monthInput.fill(month);
+        await this.yearInput.fill(year);
+
     }
 
     getAnswerRow(question: string) {
@@ -191,7 +267,4 @@ export class CalculatorPage {
     getChangeLink(question: string) {
         return this.getAnswerRow(question).getByRole('link', { name: /^Change/ });
     }
-
-
-
 }
