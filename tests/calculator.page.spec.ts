@@ -1,7 +1,7 @@
-
 import { test, expect } from '@playwright/test';
 import { calculatorPageUrl, CalculatorPage } from '../pages/calculator.page';
 import { fullYearFiveDays, fullYearThreeDays, partwayYearJuly, irregularHours } from '../test-data/holiday-scenarios';
+import { expectSummaryAnswers } from '../helpers/assertions';
 
 test.beforeEach(async ({ page }) => {
     const response = await page.goto(calculatorPageUrl);
@@ -33,14 +33,7 @@ test('02 - Positive Flow - Full year entitlement, 5 day working week', async ({ 
     await expect(calculatorPage.statutoryHolidayEntitlementAnswer).toContainText('28 days');
 
     // Verify each question and its corresponding answer
-    for (const expected of fullYearFiveDays) {
-        const row = calculatorPage.getAnswerRow(expected.question);
-
-        await expect(row).toHaveCount(1);
-        await expect(
-            row.locator('.govuk-summary-list__value')
-        ).toHaveText(expected.answer);
-    }
+    await expectSummaryAnswers(calculatorPage, fullYearFiveDays);
 
     // Verify the answer can be edited
     await expect(
@@ -58,14 +51,7 @@ test('03 - Positive Flow - Full year entitlement, 3 day working week', async ({ 
     await expect(calculatorPage.statutoryHolidayEntitlementAnswer).toContainText('16.8 days');
 
     // Verify each question and its corresponding answer
-    for (const expected of fullYearThreeDays) {
-        const row = calculatorPage.getAnswerRow(expected.question);
-
-        await expect(row).toHaveCount(1);
-        await expect(
-            row.locator('.govuk-summary-list__value')
-        ).toHaveText(expected.answer);
-    }
+    await expectSummaryAnswers(calculatorPage, fullYearThreeDays);
 });
 
 
@@ -93,14 +79,7 @@ test('04 - Positive Flow - Starting partway through a leave year', async ({ page
 
     //validation
     await expect(calculatorPage.statutoryHolidayEntitlementAnswer).toContainText('14 days');
-    for (const expected of partwayYearJuly) {
-        const row = calculatorPage.getAnswerRow(expected.question);
-
-        await expect(row).toHaveCount(1);
-        await expect(
-            row.locator('.govuk-summary-list__value')
-        ).toHaveText(expected.answer);
-    }
+    await expectSummaryAnswers(calculatorPage, partwayYearJuly);
 
 });
 
@@ -192,20 +171,13 @@ test('07 - Positive Flow - Irregular hours holiday entitlement', async ({ page }
     await calculatorPage.enterDate('1', '4', '2026');
     await calculatorPage.continueButton.click();
 
-    await expect(calculatorPage.hoursWokedQuestion).toBeVisible();
+    await expect(calculatorPage.hoursWorkedQuestion).toBeVisible();
 
     await calculatorPage.enterHoursWorked(70);
 
     await expect(calculatorPage.statutoryHolidayPayPeriodAnswer)
         .toHaveText('The statutory entitlement for this pay period is 8 hours.');
 
-    for (const expected of irregularHours) {
-        const row = calculatorPage.getAnswerRow(expected.question);
-
-        await expect(row).toHaveCount(1);
-        await expect(
-            row.locator('.govuk-summary-list__value')
-        ).toHaveText(expected.answer);
-    }
+    await expectSummaryAnswers(calculatorPage, irregularHours);
 
 });
