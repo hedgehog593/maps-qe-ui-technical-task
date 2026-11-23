@@ -42,13 +42,6 @@ export class CalculatorPage {
         })
     }
 
-    get includeHolidayQuestion() {
-        return this.page.getByRole('heading', {
-            name: 'Do you want to work out holiday:',
-            exact: true
-        })
-    }
-
     get numberOfDaysPerWeekWorkedQuestion() {
         return this.page.getByRole('heading', {
             name: 'Number of days worked per week?',
@@ -83,7 +76,7 @@ export class CalculatorPage {
     }
 
 
-    get hoursWokedQuestion() {
+    get hoursWorkedQuestion() {
         return this.page.getByLabel('How many hours has the employee worked in the pay period?');
     }
 
@@ -127,34 +120,6 @@ export class CalculatorPage {
         })
     }
 
-    get hoursPerWeekButton() {
-        return this.page.getByRole('radio', {
-            name: 'hours worked per week',
-            exact: true
-        })
-    }
-
-    get annualisedHoursButton() {
-        return this.page.getByRole('radio', {
-            name: 'annualised hours',
-            exact: true
-        })
-    }
-
-    get compressedHoursButton() {
-        return this.page.getByRole('radio', {
-            name: 'compressed hours',
-            exact: true
-        })
-    }
-
-    get shiftsButton() {
-        return this.page.getByRole('radio', {
-            name: 'shifts',
-            exact: true
-        })
-    }
-
     get fullYearHolidayButton() {
         return this.page.getByRole('radio', {
             name: 'for a full leave year',
@@ -165,20 +130,6 @@ export class CalculatorPage {
     get startPartWayYearHolidayButton() {
         return this.page.getByRole('radio', {
             name: 'for someone starting part way through a leave year',
-            exact: true
-        })
-    }
-
-    get endPartWayYearHolidayButton() {
-        return this.page.getByRole('radio', {
-            name: 'for someone leaving part way through a leave year',
-            exact: true
-        })
-    }
-
-    get bothPartWayYearButtonHolidayButton() {
-        return this.page.getByRole('radio', {
-            name: 'for someone starting and leaving part way through a leave year',
             exact: true
         })
     }
@@ -232,7 +183,7 @@ export class CalculatorPage {
     }
 
     async enterHoursWorked(hours: number): Promise<void> {
-        await this.hoursWokedQuestion.fill(hours.toString());
+        await this.hoursWorkedQuestion.fill(hours.toString());
         await this.continueButton.click();
     }
 
@@ -260,8 +211,12 @@ export class CalculatorPage {
     }
 
     getAnswerRow(question: string) {
-        return this.page.locator('.govuk-summary-list__row').filter
-            ({ has: this.page.getByRole('term').filter({ hasText: question }) });
+        return this.page.locator('.govuk-summary-list__row')
+            .filter({
+                has: this.page.getByRole('term').filter({
+                    hasText: question
+                })
+            });
     }
 
     getChangeLink(question: string) {
