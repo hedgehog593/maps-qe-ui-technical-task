@@ -1,17 +1,24 @@
 import { expect } from '@playwright/test';
-import { CalculatorPage } from '../pages/calculator.page';
-import type { ExpectedAnswer } from '../test-data/holiday-scenarios';
+import type { CalculatorPage } from '../pages/calculator.page';
+import type { ExpectedSummaryAnswer } from '../test-data/holiday-scenarios';
+
+export async function expectCalculatorLandingPage(calculatorPage: CalculatorPage): Promise<void> {
+    await expect(calculatorPage.calculatorHeading).toBeVisible();
+    await expect(calculatorPage.startNowButton).toBeVisible();
+}
 
 export async function expectSummaryAnswers(
     calculatorPage: CalculatorPage,
-    expectedAnswers: ExpectedAnswer[]
+    expectedAnswers: readonly ExpectedSummaryAnswer[]
 ): Promise<void> {
-    for (const expected of expectedAnswers) {
-        const row = calculatorPage.getAnswerRow(expected.question);
-
-        await expect(row).toHaveCount(1);
-        await expect(
-            row.locator('.govuk-summary-list__value')
-        ).toHaveText(expected.answer);
+    for (const { question, answer } of expectedAnswers) {
+        await expect(calculatorPage.getSummaryRow(question)).toHaveCount(1);
+        await expect(calculatorPage.getSummaryAnswer(question)).toHaveText(answer);
     }
+}
+
+export async function expectRequiredAnswerError(calculatorPage: CalculatorPage): Promise<void> {
+    await expect(calculatorPage.errorSummaryHeading).toBeVisible();
+    await expect(calculatorPage.requiredAnswerMessage).toBeVisible();
+    await expect(calculatorPage.requiredAnswerLink).toBeVisible();
 }
