@@ -8,7 +8,7 @@ import {
 } from '../test-data/holiday-scenarios';
 import { expect, test } from './fixtures';
 
-test('TC01 - Opens the calculator and displays the first question', async ({ calculatorPage }) => {
+test('TC01 - Opens the calculator and displays the first question', { tag: ['@smoke', '@positive'] }, async ({ calculatorPage }) => {
     await expectCalculatorLandingPage(calculatorPage);
     await calculatorPage.startNowButton.click();
 
@@ -19,13 +19,13 @@ test('TC01 - Opens the calculator and displays the first question', async ({ cal
 });
 
 const fullYearCases = [
-    { testCaseId: 'TC02', scenario: fullYearFiveDayScenario, verifyDaysPerWeekChangeLink: true },
-    { testCaseId: 'TC03', scenario: fullYearThreeDayScenario, verifyDaysPerWeekChangeLink: false }
+    { testCaseId: 'TC02', scenario: fullYearFiveDayScenario, tag: ['@smoke', '@positive'], verifyDaysPerWeekChangeLink: true },
+    { testCaseId: 'TC03', scenario: fullYearThreeDayScenario, tag: '@positive', verifyDaysPerWeekChangeLink: false }
 ];
 
-for (const { testCaseId, scenario, verifyDaysPerWeekChangeLink } of fullYearCases) {
+for (const { testCaseId, scenario, tag, verifyDaysPerWeekChangeLink } of fullYearCases) {
     const title = `${testCaseId} - Calculates full-year entitlement for a ${scenario.daysPerWeek}-day working week`;
-    test(title, async ({ calculatorPage }) => {
+    test(title, { tag }, async ({ calculatorPage }) => {
         await calculatorPage.calculateFullYearEntitlement(scenario.daysPerWeek);
 
         await expect(calculatorPage.holidayEntitlementResult).toContainText(scenario.expectedEntitlement);
@@ -37,7 +37,7 @@ for (const { testCaseId, scenario, verifyDaysPerWeekChangeLink } of fullYearCase
     });
 }
 
-test('TC04 - Calculates entitlement for someone starting partway through a leave year', async ({ calculatorPage }) => {
+test('TC04 - Calculates entitlement for someone starting partway through a leave year', { tag: '@positive' }, async ({ calculatorPage }) => {
     await calculatorPage.startPartYearCalculation();
 
     await expect(calculatorPage.employmentStartDateHeading).toBeVisible();
@@ -53,7 +53,7 @@ test('TC04 - Calculates entitlement for someone starting partway through a leave
     await expectSummaryAnswers(calculatorPage, partYearScenario.expectedAnswers);
 });
 
-test('TC05 - Displays validation errors for missing required answers', async ({ calculatorPage }) => {
+test('TC05 - Displays validation errors for missing required answers', { tag: '@negative' }, async ({ calculatorPage }) => {
     await expectCalculatorLandingPage(calculatorPage);
     await calculatorPage.startNowButton.click();
 
@@ -68,7 +68,7 @@ test('TC05 - Displays validation errors for missing required answers', async ({ 
     await expect(calculatorPage.leaveYearStartHeading).toBeVisible();
 });
 
-test('TC06 - Restarts the calculator and changes an earlier answer', async ({ calculatorPage }) => {
+test('TC06 - Restarts the calculator and changes an earlier answer', { tag: '@positive' }, async ({ calculatorPage }) => {
     await test.step('Restart after completing a calculation', async () => {
         await calculatorPage.calculateFullYearEntitlement(fullYearFiveDayScenario.daysPerWeek);
         await expect(calculatorPage.holidayEntitlementResult).toContainText(fullYearFiveDayScenario.expectedEntitlement);
@@ -95,7 +95,7 @@ test('TC06 - Restarts the calculator and changes an earlier answer', async ({ ca
     });
 });
 
-test('TC07 - Calculates pay-period entitlement for an irregular-hours worker', async ({ calculatorPage }) => {
+test('TC07 - Calculates pay-period entitlement for an irregular-hours worker', { tag: '@positive' }, async ({ calculatorPage }) => {
     await expectCalculatorLandingPage(calculatorPage);
     await calculatorPage.startNowButton.click();
 

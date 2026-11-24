@@ -1,10 +1,20 @@
 import { defineConfig } from '@playwright/test';
+import { runtimeConfig } from './config/runtime';
 
 export default defineConfig({
     testDir: './tests',
     fullyParallel: true,
-    workers: 2,
+    forbidOnly: runtimeConfig.isCI,
+    failOnFlakyTests: runtimeConfig.isCI,
+    workers: runtimeConfig.workers,
+    retries: runtimeConfig.retries,
+    reporter: [
+        [runtimeConfig.isCI ? 'github' : 'list'],
+        ['html', { open: 'never' }]
+    ],
     use: {
-        baseURL: process.env.MAPS_BASE_URL || 'https://www.gov.uk'
+        baseURL: runtimeConfig.baseURL,
+        screenshot: 'only-on-failure',
+        trace: 'retain-on-failure'
     }
 });
