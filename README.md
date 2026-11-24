@@ -1,6 +1,6 @@
 # MaPS holiday entitlement calculator tests
 
-This Playwright suite exercises the GOV.UK holiday entitlement calculator in Chromium. Each test uses a fresh browser context. The suite requires internet access and runs without credentials.
+This Playwright suite exercises the GOV.UK holiday entitlement calculator in Chromium. Each test uses a fresh browser context.
 
 ## Setup and validation
 
@@ -11,8 +11,6 @@ npm ci
 npx playwright install chromium
 npm run validate
 ```
-
-On Linux, use `npx playwright install --with-deps chromium` to install the browser and its system dependencies. `npm run validate` runs ESLint, TypeScript checks, and the full Playwright suite.
 
 ## Test plan
 
@@ -34,7 +32,7 @@ Run a subset with `npm test -- --grep @smoke` or `npm test -- --grep @negative`.
 
 ## Configuration and reports
 
-Configuration defaults live in `config/runtime.ts`, and inputs and expected answers live in `test-data/holiday-scenarios.ts`. For local overrides, copy `.env.example` to `.env` and uncomment the settings you need. Shell and CI settings take precedence. Missing overrides use the defaults, and malformed values stop the run before a browser opens.
+Configuration defaults live in `config/runtime.ts`, and inputs and expected answers live in `test-data/holiday-scenarios.ts`. For local overrides, copy `.env.example` to `.env` and uncomment the settings you need.
 
 | Variable | Default | Purpose |
 | --- | --- | --- |
@@ -42,8 +40,16 @@ Configuration defaults live in `config/runtime.ts`, and inputs and expected answ
 | `MAPS_WORKERS` | `2` | Number of parallel workers |
 | `MAPS_RETRIES` | `0` locally, `1` in CI | Number of retries per failing case |
 
-Local environment files are ignored by Git. If an authenticated environment is added later, provide credentials through GitHub Actions secrets and keep them out of URLs and test data.
-
 Open the HTML report with `npx playwright show-report`. Failed cases retain screenshots and traces. GitHub Actions runs lint, type checking and Playwright on PRs into `main` and pushes to `main`. The workflow publishes the report and failure evidence as the `playwright-results` artifact. CI flags tests that pass only after a retry, so a flaky result fails the check.
 
-For changes, branch from the working branch `develop`, open a pull request into `main`, and merge after review and passing checks. Sync `develop` with `main` after merging.
+## Latest validation
+
+The latest GitHub Actions passed ESLint, TypeScript checking and all 11 Playwright tests using two workers. [TO view a successful run](https://github.com/hedgehog593/maps-qe-ui-technical-task/actions/runs/45389420661).
+
+## Accessibility excercise
+
+The accessibility findings, including individual bug reports for each issue, are documented in `accessibility-pages-bonus/accessibility-findings.md`.
+
+## Test Plan
+
+I've documented my testing approach, risk assessment and coverage decisions in the `docs/MaPS-Test-Plan.md`.
