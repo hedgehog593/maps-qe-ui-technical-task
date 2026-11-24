@@ -1,7 +1,7 @@
 import type { Page } from '@playwright/test';
 
 export abstract class BasePage {
-    constructor(protected readonly page: Page) {}
+    constructor(protected readonly page: Page) { }
 
     protected async navigate(path: string): Promise<void> {
         const response = await this.page.goto(path);

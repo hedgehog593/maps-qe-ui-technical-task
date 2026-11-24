@@ -25,6 +25,10 @@ On Linux, use `npx playwright install --with-deps chromium` to install the brows
 | TC05 | Missing answers show validation errors on both the first question and the leave-year date | `@negative` |
 | TC06 | Start again returns to the landing page, and changing an earlier answer follows the updated route | `@positive` |
 | TC07 | Seventy hours of irregular work gives 8 hours of entitlement, with the expected summary | `@positive` |
+| TC08 | The hours-per-week option gives 224 hours of entitlement for 40 hours over five days, with the expected summary | `@positive` |
+| TC09 | The shifts option gives 19.6 twelve-hour shifts of entitlement for four shifts in an eight-day pattern, with the expected summary | `@positive` |
+| TC10 | Annualised hours from 1 April to 30 September 2026 give 2.81 weeks of entitlement, with the expected summary | `@positive` |
+| TC11 | Compressed hours of 36 per week over four days for the same dates give 101 hours and 6 minutes of entitlement, with the expected summary | `@positive` |
 
 Run a subset with `npm test -- --grep @smoke` or `npm test -- --grep @negative`. Run serially with `npm test -- --workers=1`.
 
