@@ -1,225 +1,120 @@
+import type { Locator, Page } from '@playwright/test';
+import { BasePage } from './base.page';
 
-import type { Page } from '@playwright/test';
+export const calculatorQuestions = {
+    irregularHours: 'Does the employee work irregular hours or for part of the year?',
+    calculationBasis: 'Is the holiday entitlement based on:',
+    leavePeriod: 'Do you want to work out holiday:',
+    employmentStartDate: 'What was the employment start date?',
+    leaveYearStart: 'When does the leave year start?',
+    daysPerWeek: 'Number of days worked per week?',
+    hoursWorked: 'How many hours has the employee worked in the pay period?'
+} as const;
 
-export const calculatorPageUrl = 'https://www.gov.uk/calculate-your-holiday-entitlement';
+export const calculatorOptions = {
+    daysPerWeek: 'days worked per week',
+    fullYear: 'for a full leave year',
+    startsPartwayThroughYear: 'for someone starting part way through a leave year'
+} as const;
 
-export class CalculatorPage {
+type CalculatorDate = {
+    day: string;
+    month: string;
+    year: string;
+};
 
-    constructor(private readonly page: Page) { }
+const requiredAnswerText = 'Please answer this question';
 
-    get calculateHolidayEntitlementPage() {
-        return this.page.getByRole('heading', {
-            name: 'Calculate holiday entitlement',
-            exact: true
-        });
+export class CalculatorPage extends BasePage {
+    readonly calculatorHeading = this.heading('Calculate holiday entitlement');
+    readonly irregularHoursHeading = this.heading(calculatorQuestions.irregularHours);
+    readonly employmentStartDateHeading = this.heading(calculatorQuestions.employmentStartDate);
+    readonly calculationBasisHeading = this.heading(calculatorQuestions.calculationBasis);
+    readonly daysPerWeekHeading = this.heading(calculatorQuestions.daysPerWeek);
+    readonly leaveYearStartHeading = this.heading(calculatorQuestions.leaveYearStart);
+    readonly errorSummaryHeading = this.heading('There is a problem');
+    readonly startNowButton = this.button('Start now');
+    readonly continueButton = this.button('Continue');
+    readonly yesRadio = this.radio('Yes');
+    readonly noRadio = this.radio('No');
+    readonly startAgainLink = this.page.getByRole('link', { name: 'Start again', exact: true });
+    readonly requiredAnswerLink = this.page.getByRole('link', { name: requiredAnswerText, exact: true });
+    readonly requiredAnswerMessage = this.page.locator('.govuk-error-message').filter({ hasText: requiredAnswerText });
+    readonly hoursWorkedInput = this.page.getByLabel(calculatorQuestions.hoursWorked);
+    readonly holidayEntitlementResult = this.page.getByText(/The statutory holiday entitlement is/i);
+    readonly payPeriodEntitlementResult = this.page.getByText(/The statutory entitlement for this pay period is/i);
+
+    private readonly daysPerWeekInput = this.page.getByLabel(calculatorQuestions.daysPerWeek);
+    private readonly daysPerWeekRadio = this.radio(calculatorOptions.daysPerWeek);
+    private readonly fullYearRadio = this.radio(calculatorOptions.fullYear);
+    private readonly partYearRadio = this.radio(calculatorOptions.startsPartwayThroughYear);
+    private readonly dayInput = this.page.getByLabel('Day');
+    private readonly monthInput = this.page.getByLabel('Month');
+    private readonly yearInput = this.page.getByLabel('Year');
+    private readonly summaryRows = this.page.locator('.govuk-summary-list__row');
+
+    constructor(page: Page, private readonly calculatorPath: string) {
+        super(page);
     }
 
-    get startNowLink() {
-        return this.page.getByRole('button', {
-            name: 'Start now',
-            exact: true
-        });
+    open(): Promise<void> {
+        return this.navigate(this.calculatorPath);
     }
 
-    get irregularHoursQuestion() {
-        return this.page.getByRole('heading', {
-            name: 'Does the employee work irregular hours or for part of the year?',
-            exact: true
-        });
+    async answerIrregularHoursQuestion(worksIrregularHoursOrPartYear: boolean): Promise<void> {
+        await this.selectAndContinue(worksIrregularHoursOrPartYear ? this.yesRadio : this.noRadio);
     }
 
-    get employmentStartDateQuestion() {
-        return this.page.getByRole('heading', {
-            name: 'What was the employment start date?',
-            exact: true
-        });
-    }
-
-    get workingPatternQuestion() {
-        return this.page.getByRole('heading', {
-            name: 'Is the holiday entitlement based on:',
-            exact: true
-        })
-    }
-
-    get numberOfDaysPerWeekWorkedQuestion() {
-        return this.page.getByRole('heading', {
-            name: 'Number of days worked per week?',
-            exact: true
-        })
-    }
-
-    get whenDoesLeaveYearStartQuestion() {
-        return this.page.getByRole('heading', {
-            name: 'When does the leave year start?',
-            exact: true
-        })
-    }
-
-    get errorProblem() {
-        return this.page.getByRole('heading', {
-            name: 'There is a problem',
-            exact: true
-        })
-    }
-
-    get errorPleaseAnswerThisQuestionText() {
-        return this.page.locator('.govuk-error-message')
-            .filter({ hasText: 'Please answer this question' });
-    }
-
-    get errorPleaseAnswerThisQuestionLink() {
-        return this.page.getByRole('link', {
-            name: 'Please answer this question',
-            exact: true
-        })
-    }
-
-
-    get hoursWorkedQuestion() {
-        return this.page.getByLabel('How many hours has the employee worked in the pay period?');
-    }
-
-    get statutoryHolidayEntitlementAnswer() {
-        return this.page.getByText(
-            /The statutory holiday entitlement is/i
-        );
-    }
-
-    get statutoryHolidayPayPeriodAnswer() {
-        return this.page.getByText(
-            /The statutory entitlement for this pay period is/i
-        );
-    }
-
-    get continueButton() {
-        return this.page.getByRole('button', {
-            name: 'Continue',
-            exact: true
-        });
-    }
-
-    get yesButton() {
-        return this.page.getByRole('radio', {
-            name: 'Yes',
-            exact: true
-        });
-    }
-
-    get noButton() {
-        return this.page.getByRole('radio', {
-            name: 'No',
-            exact: true
-        });
-    }
-
-    get daysPerWeekButton() {
-        return this.page.getByRole('radio', {
-            name: 'days worked per week',
-            exact: true
-        })
-    }
-
-    get fullYearHolidayButton() {
-        return this.page.getByRole('radio', {
-            name: 'for a full leave year',
-            exact: true
-        })
-    }
-
-    get startPartWayYearHolidayButton() {
-        return this.page.getByRole('radio', {
-            name: 'for someone starting part way through a leave year',
-            exact: true
-        })
-    }
-
-    get startAgainLink() {
-        return this.page.getByRole('link', {
-            name: 'Start again',
-            exact: true
-        })
-    }
-
-    get numberOfDaysWorkedInput() {
-        return this.page.getByLabel('Number of days worked per week?');
-    }
-
-    get dayInput() {
-        return this.page.getByLabel('Day');
-    }
-
-    get monthInput() {
-        return this.page.getByLabel('Month');
-    }
-
-    get yearInput() {
-        return this.page.getByLabel('Year');
-    }
-
-    async submitYes(): Promise<void> {
-        await this.yesButton.check();
+    async submitDaysPerWeek(daysPerWeek: number): Promise<void> {
+        await this.daysPerWeekInput.fill(daysPerWeek.toString());
         await this.continueButton.click();
     }
 
-    async submitNo(): Promise<void> {
-        await this.noButton.check();
+    async submitHoursWorked(hoursWorked: number): Promise<void> {
+        await this.hoursWorkedInput.fill(hoursWorked.toString());
         await this.continueButton.click();
     }
 
-    async submitDaysPerWeek(): Promise<void> {
-        await this.daysPerWeekButton.click();
-        await this.continueButton.click();
+    async calculateFullYearEntitlement(daysPerWeek: number): Promise<void> {
+        await this.startDaysPerWeekCalculation();
+        await this.selectAndContinue(this.fullYearRadio);
+        await this.submitDaysPerWeek(daysPerWeek);
     }
 
-    async submitFullYearHoliday(): Promise<void> {
-        await this.fullYearHolidayButton.click();
-        await this.continueButton.click();
+    async startPartYearCalculation(): Promise<void> {
+        await this.startDaysPerWeekCalculation();
+        await this.selectAndContinue(this.partYearRadio);
     }
 
-    async enterDaysWorked(days: number): Promise<void> {
-        await this.numberOfDaysWorkedInput.fill(days.toString());
-        await this.continueButton.click();
-    }
-
-    async enterHoursWorked(hours: number): Promise<void> {
-        await this.hoursWorkedQuestion.fill(hours.toString());
-        await this.continueButton.click();
-    }
-
-    async calculateFullYearEntitlement(days: number): Promise<void> {
-        await this.startNowLink.click();
-        await this.submitNo();
-        await this.submitDaysPerWeek();
-        await this.submitFullYearHoliday();
-        await this.enterDaysWorked(days);
-    }
-
-    async calculatePartYearEntitlement(): Promise<void> {
-        await this.startNowLink.click();
-        await this.submitNo();
-        await this.submitDaysPerWeek();
-        await this.startPartWayYearHolidayButton.check();
-        await this.continueButton.click();
-    }
-
-    async enterDate(day: string, month: string, year: string): Promise<void> {
+    async submitDate({ day, month, year }: CalculatorDate): Promise<void> {
         await this.dayInput.fill(day);
         await this.monthInput.fill(month);
         await this.yearInput.fill(year);
-
+        await this.continueButton.click();
     }
 
-    getAnswerRow(question: string) {
-        return this.page.locator('.govuk-summary-list__row')
-            .filter({
-                has: this.page.getByRole('term').filter({
-                    hasText: question
-                })
-            });
+    getSummaryRow(question: string) {
+        return this.summaryRows.filter({
+            has: this.page.getByRole('term').filter({ hasText: question })
+        });
+    }
+
+    getSummaryAnswer(question: string) {
+        return this.getSummaryRow(question).locator('.govuk-summary-list__value');
     }
 
     getChangeLink(question: string) {
-        return this.getAnswerRow(question).getByRole('link', { name: /^Change/ });
+        return this.getSummaryRow(question).getByRole('link', { name: /^Change/ });
+    }
+
+    private async startDaysPerWeekCalculation(): Promise<void> {
+        await this.startNowButton.click();
+        await this.answerIrregularHoursQuestion(false);
+        await this.selectAndContinue(this.daysPerWeekRadio);
+    }
+
+    private async selectAndContinue(option: Locator): Promise<void> {
+        await option.check();
+        await this.continueButton.click();
     }
 }
